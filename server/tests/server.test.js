@@ -10,7 +10,9 @@ const todos = [{
     text: 'First test todo'
 }, {
     _id: new ObjectID(),
-    text: 'Second test todo'
+    text: 'Second test todo',
+    completed: true,
+    completedAt: 333
 }];
 
 // will be run before every test, it will delete all data
@@ -133,16 +135,54 @@ describe('DELTE /todos/:id', () => {
     it('should return 404 if todo not found', (done) => {
         var hexId = new ObjectID().toHexString();
         request(app)
-        .delete(`/todos/${hexId}`)
-        .expect(404)
-        .end(done);
+            .delete(`/todos/${hexId}`)
+            .expect(404)
+            .end(done);
     });
 
     it('should return 404 if object id is invalid', (done) => {
         request(app)
-        .delete(`/todos/123`)
-        .expect(404)
-        .end(done);
-    }); 
+            .delete(`/todos/123`)
+            .expect(404)
+            .end(done);
+    });
+
+});
+
+describe('PATCH /todos/:id', () => {
+    it('should update the todo', (done) => {
+        var id = todos[0]._id.toHexString();
+        var updateText = "update from server.test.js";
+
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({ text: updateText, completed: true })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(updateText);
+                expect(res.body.todo.completed).toBe(true);
+               // expect(res.body.todo.completedAt).toBeAn('number');
+            })
+            .end(done);
+
+    });
+
+     it('should clear completedAt when todo is not completed', (done) => {
+        var id = todos[1]._id.toHexString();
+        var updateText = "update from server.test.js !!";
+
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({ text:updateText, completed: false })
+            .expect(200)
+            .expect((res) => {
+
+                expect(res.body.todo.text).toBe(updateText);
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toNotExist();
+            })
+            .end(done);
+
+     });
 
 });
