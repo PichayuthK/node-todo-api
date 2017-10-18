@@ -196,7 +196,7 @@ describe('PATCH /todos/:id', () => {
 
     });
 
-    it('should update the todo by different user', (done) => {
+    it('should not update the todo by different user', (done) => {
         var id = todos[0]._id.toHexString();
         var updateText = "update from server.test.js";
 
